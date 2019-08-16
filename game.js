@@ -10,7 +10,7 @@ let movement = {
     down: false
 }
 
-document.addEventListener("keypress", (e) => {
+document.addEventListener("keydown", (e) => {
     console.log('pressed: ' + e.code);
     switch (e.code) {
         case 'KeyW':
@@ -29,6 +29,10 @@ document.addEventListener("keypress", (e) => {
             game.player.xVelocity = game.player.speed;
             movement.right = true;
             break;
+    }
+
+    if (movement.up) {
+        
     }
 });
 
@@ -88,7 +92,7 @@ class Player {
     }
 
     render() {
-        this.ctx.fillStyle = 'rgb(100,100,100)';
+        this.ctx.fillStyle = 'rgb(150,150,255)';
         this.ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
@@ -103,7 +107,7 @@ class Game {
         const canvas = document.getElementById('canvas');
         canvas.setAttribute('width', this.width);
         canvas.setAttribute('height', this.height);
-        canvas.setAttribute('style', 'background: #000');
+
 
         this.ctx = document.getElementById('canvas').getContext("2d")
         this.player = new Player(32, 32, 0, 0, this.ctx, this);
@@ -144,7 +148,8 @@ class Game {
 
 
 let count = 10;
-const game = new Game(1200, 800);
+//const game = new Game(1200, 800);
+const game = new Game(600, 600);
 //game.start();
 //function 
 
