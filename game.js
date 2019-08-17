@@ -1,101 +1,45 @@
+// to bundle:
+// browserify player.js keyListener.js game.js > dist/bundle.js
+
 'use strict'
+let Player = require('./player.js')
+
 
 //import Player from './player.js';
 
 //console.log(Player);
-let movement = {
+window.movement = {
     left: false,
     right: false,
     up: false,
     down: false
 }
 
-document.addEventListener("keydown", (e) => {
-    console.log('pressed: ' + e.code);
-    switch (e.code) {
-        case 'KeyW':
-            game.player.yVelocity = -game.player.speed;
-            movement.up = true;
-            break;
-        case 'KeyS':
-            game.player.yVelocity = game.player.speed;
-            movement.down = true;
-            break;
-        case 'KeyA':
-            game.player.xVelocity = -game.player.speed;
-            movement.left = true;
-            break;
-        case 'KeyD':
-            game.player.xVelocity = game.player.speed;
-            movement.right = true;
-            break;
-    }
-
-    if (movement.up) {
-        
-    }
-});
-
-document.addEventListener("keyup", (e) => {
-    console.log(e.code);
-    switch (e.code) {
-        case 'KeyW':
-            movement.up = false;
-            break;
-        case 'KeyS':
-            movement.down = false;
-            break;
-        case 'KeyA':
-            movement.left = false;
-            break;
-        case 'KeyD':
-            movement.right = false;
-            break;
-    }
-
-    if (!movement.up && !movement.down) game.player.yVelocity = 0;
-    if (!movement.left && !movement.right) game.player.xVelocity = 0;
+require('./keyListener.js')
 
 
-});
+// document.addEventListener("keyup", (e) => {
+//     console.log(e.code);
+//     switch (e.code) {
+//         case 'KeyW':
+//             movement.up = false;
+//             break;
+//         case 'KeyS':
+//             movement.down = false;
+//             break;
+//         case 'KeyA':
+//             movement.left = false;
+//             break;
+//         case 'KeyD':
+//             movement.right = false;
+//             break;
+//     }
 
-class Player {
-    constructor(width, height, x, y, ctx, game) {
-        this.width = width;
-        this.height = height;
-        this.x = x;
-        this.y = y;
-        this.xVelocity = 0;
-        this.yVelocity = 0;
-        this.ctx = ctx;
-        this.game = game;
-        this.speed = 2;
-    }
+//     if (!movement.up && !movement.down) game.player.yVelocity = 0;
+//     if (!movement.left && !movement.right) game.player.xVelocity = 0;
 
-    tick() {
 
-        this.x += this.xVelocity;
-        this.y += this.yVelocity;
-
-        if (this.x > this.game.width - this.width) {
-            this.x = 0;
-        }
-        if (this.x < 0) {
-            this.x = this.game.width - this.width;
-        }
-        if (this.y > this.game.width - this.width) {
-            this.y = this.game.width - this.width;
-        }
-        if (this.y < 0) {
-            this.y = 0;
-        }
-    }
-
-    render() {
-        this.ctx.fillStyle = 'rgb(150,150,255)';
-        this.ctx.fillRect(this.x, this.y, this.width, this.height);
-    }
-}
+// });
 
 class Game {
     constructor(width, height) {
@@ -144,14 +88,8 @@ class Game {
     }
 }
 
-
-
-
 let count = 10;
-//const game = new Game(1200, 800);
-const game = new Game(600, 600);
-//game.start();
-//function 
+window.game = new Game(1200, 650);
 
 game.start();
 
