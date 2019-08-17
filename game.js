@@ -1,13 +1,11 @@
 // to bundle:
-// browserify player.js keyListener.js game.js > dist/bundle.js
+// browserify player.js keyListener.js enemy.js game.js > dist/bundle.js
 
 'use strict'
 let Player = require('./player.js')
+let Enemy = require('./enemy.js').Enemy
+let SimpleEnemy = require('./enemy.js').SimpleEnemy
 
-
-//import Player from './player.js';
-
-//console.log(Player);
 window.movement = {
     left: false,
     right: false,
@@ -17,29 +15,6 @@ window.movement = {
 
 require('./keyListener.js')
 
-
-// document.addEventListener("keyup", (e) => {
-//     console.log(e.code);
-//     switch (e.code) {
-//         case 'KeyW':
-//             movement.up = false;
-//             break;
-//         case 'KeyS':
-//             movement.down = false;
-//             break;
-//         case 'KeyA':
-//             movement.left = false;
-//             break;
-//         case 'KeyD':
-//             movement.right = false;
-//             break;
-//     }
-
-//     if (!movement.up && !movement.down) game.player.yVelocity = 0;
-//     if (!movement.left && !movement.right) game.player.xVelocity = 0;
-
-
-// });
 
 class Game {
     constructor(width, height) {
@@ -55,6 +30,7 @@ class Game {
 
         this.ctx = document.getElementById('canvas').getContext("2d")
         this.player = new Player(32, 32, 0, 0, this.ctx, this);
+        this.enemies = [new SimpleEnemy(16, 16, this.width / 2, this.height / 2, this.ctx)]
     }   
 
     start() {
@@ -66,6 +42,7 @@ class Game {
         // setTimeout(x => {
             
         // }, 3000);
+
 
         setInterval(this.tick.bind(this), 5);
         requestAnimationFrame(this.gameLoop.bind(this));
@@ -80,11 +57,18 @@ class Game {
 
     tick() {
         this.player.tick();
+
+        for(let enemy of this.enemies) {
+            enemy.tick(this.player.x, this.player.y);
+        }
     }
 
     render() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.player.render();
+        for (let enemy of this.enemies) {
+            enemy.render();
+        }
     }
 }
 
