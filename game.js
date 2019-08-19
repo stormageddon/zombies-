@@ -2,10 +2,16 @@
 // browserify player.js keyListener.js enemy.js game.js > dist/bundle.js
 
 'use strict'
-let Player = require('./player.js')
-let Enemy = require('./enemy.js').Enemy
-let SimpleEnemy = require('./enemy.js').SimpleEnemy
+const Player = require('./player.js');
+const Enemy = require('./enemy.js').Enemy;
+const SimpleEnemy = require('./enemy.js').SimpleEnemy;
+const GameObject = require('./gameObject.js').GameObject;
+const Bullet = require('./gameObject.js').Bullet;
+const GAME_WIDTH = 1200;
+const GAME_HEIGHT = 650;
 
+const FIRE_TIMER_MAX = 2;
+const FPS = 30;
 window.movement = {
     left: false,
     right: false,
@@ -13,7 +19,9 @@ window.movement = {
     down: false
 }
 
-require('./keyListener.js')
+require('./keyListener.js');
+const MouseListener = require('./mouseListener.js');
+
 
 
 class Game {
@@ -21,7 +29,9 @@ class Game {
         this.width = width;
         this.height = height;
         this.isRunning = true;
-        this.tickSpeed = 1;        
+        this.tickSpeed = 1;  
+        this.mouseListener = new MouseListener();   
+        this.fireTimer = 0;   
 
         const canvas = document.getElementById('canvas');
         canvas.setAttribute('width', this.width);
@@ -29,8 +39,10 @@ class Game {
 
 
         this.ctx = document.getElementById('canvas').getContext("2d")
+        
         this.player = new Player(32, 32, 0, 0, this.ctx, this);
-        this.enemies = [new SimpleEnemy(16, 16, this.width / 2, this.height / 2, this.ctx)]
+        this.enemies = [new SimpleEnemy(32, 32, this.width / 2, this.height / 2, this.ctx)]
+        this.bullets = []
     }   
 
     start() {
@@ -42,7 +54,6 @@ class Game {
         // setTimeout(x => {
             
         // }, 3000);
-
 
         setInterval(this.tick.bind(this), 5);
         requestAnimationFrame(this.gameLoop.bind(this));
@@ -58,22 +69,60 @@ class Game {
     tick() {
         this.player.tick();
 
-        for(let enemy of this.enemies) {
+        if (this.mouseListener.clicking && this.fireTimer == 0) {
+            this.doFire(this.mouseListener.x, this.mouseListener.y);
+
+            this.fireTimer = FIRE_TIMER_MAX;
+        }
+        else {
+            this.fireTimer -= 1 / FPS;
+            if (this.fireTimer < 0) {
+                this.fireTimer = 0;
+            }
+        }
+
+/*        for(let enemy of this.enemies) {
             enemy.tick(this.player.x, this.player.y);
+        }*/
+
+        for(let i = this.bullets.length; i--; i >= 0) {
+            let bullet = this.bullets[i];
+            bullet.tick();
+            
+            // check for end of range
+            if (bullet.distanceTravelled >= bullet.distanceToTravel) {
+                this.bullets.splice(i, 1);
+            }
         }
     }
 
     render() {
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.player.render();
-        for (let enemy of this.enemies) {
+ /*       for (let enemy of this.enemies) {
             enemy.render();
         }
+*/
+        for(let bullet of this.bullets) {
+            bullet.render();
+        }
+
+    }
+
+    doFire(destX, destY) {
+    /*/ console.log('do fire');
+        this.ctx.fillStyle = 'rgb(255,0,0)'
+        this.ctx.beginPath();
+        this.ctx.moveTo(this.player.x + (this.player.width / 2), this.player.y + (this.player.height / 2));
+        this.ctx.lineTo(destX, destY);
+        this.ctx.stroke();*/
+        this.bullets.push(new Bullet(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, destX, destY));
+        console.log(this.bullets);
     }
 }
 
 let count = 10;
-window.game = new Game(1200, 650);
+window.game = new Game(GAME_WIDTH, GAME_HEIGHT);
 
 game.start();
 
