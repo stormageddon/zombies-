@@ -24,8 +24,9 @@ class Bullet extends GameObject {
         this.destX = destX;
         this.destY = destY;
         this.speed = 2;
-        this.distanceToTravel = 1200 * 0.75;
+        this.distanceToTravel = 1200 * 0.4;
         this.distanceTravelled = 0;
+        this.radius = 1;
 
         // this.dx = this.destX - this.x;
         // this.dy = this.destY - this.y;
@@ -99,11 +100,11 @@ class Bullet extends GameObject {
     render() {
         this.ctx.fillStyle = 'rgb(0,0,255)';
         this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, 2, 0 , Math.PI * 2, false);
+        this.ctx.arc(this.x, this.y, this.radius, 0 , Math.PI * 2, false);
+
         this.ctx.fill();
         this.ctx.stroke();
         this.ctx.closePath();
-        
     }
 }
 

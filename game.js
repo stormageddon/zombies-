@@ -5,12 +5,13 @@
 const Player = require('./player.js');
 const Enemy = require('./enemy.js').Enemy;
 const SimpleEnemy = require('./enemy.js').SimpleEnemy;
+const FastEnemy = require('./enemy.js').FastEnemy;
 const GameObject = require('./gameObject.js').GameObject;
 const Bullet = require('./gameObject.js').Bullet;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 650;
 
-const FIRE_TIMER_MAX = 2;
+const FIRE_TIMER_MAX = 1.0;
 const FPS = 30;
 window.movement = {
     left: false,
@@ -31,7 +32,9 @@ class Game {
         this.isRunning = true;
         this.tickSpeed = 1;  
         this.mouseListener = new MouseListener();   
-        this.fireTimer = 0;   
+        this.fireTimer = 0;  
+        this.level = 0; 
+        this.gameEnded = false;
 
         const canvas = document.getElementById('canvas');
         canvas.setAttribute('width', this.width);
@@ -41,9 +44,21 @@ class Game {
         this.ctx = document.getElementById('canvas').getContext("2d")
         
         this.player = new Player(32, 32, 0, 0, this.ctx, this);
-        this.enemies = [new SimpleEnemy(32, 32, this.width / 2, this.height / 2, this.ctx)]
+        this.enemies = []
+        this.generateEnemies();
+        
+//        this.enemies.push(new FastEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, this.ctx))
+        
         this.bullets = []
     }   
+
+    generateEnemies() {
+        console.log(this.level);
+        for (let i = 0; i < 5 + (2 * this.level); i++) {
+            console.log('generate');
+            this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, this.ctx));
+        }
+    }
 
     start() {
         // this.ctx.fillStyle = "rgb(255,255,255)";
@@ -54,7 +69,7 @@ class Game {
         // setTimeout(x => {
             
         // }, 3000);
-
+        this.gameEnded = false;
         setInterval(this.tick.bind(this), 5);
         requestAnimationFrame(this.gameLoop.bind(this));
     }
@@ -67,6 +82,15 @@ class Game {
     }
 
     tick() {
+
+        if (this.player.health <= 0) {
+            this.gameOver()
+        }
+
+        if (this.gameEnded) {
+            return;
+        }
+
         this.player.tick();
 
         if (this.mouseListener.clicking && this.fireTimer == 0) {
@@ -81,32 +105,85 @@ class Game {
             }
         }
 
-/*        for(let enemy of this.enemies) {
+        for(let i = this.enemies.length; i--; i >= 0 ) {
+            let enemy = this.enemies[i];
             enemy.tick(this.player.x, this.player.y);
-        }*/
+
+            //f (RectA.X1 < RectB.X2 && RectA.X2 > RectB.X1 &&
+            //    RectA.Y1 > RectB.Y2 && RectA.Y2 < RectB.Y1) 
+
+            if (this.player.x < enemy.x + enemy.width
+                && this.player.x + this.player.width > enemy.x
+                && this.player.y > enemy.y - enemy.height
+                && this.player.y - this.player.height < enemy.y) {
+                    this.player.health--
+                    this.enemies.splice(i, 1);
+                    break;
+            }
+
+        }
 
         for(let i = this.bullets.length; i--; i >= 0) {
             let bullet = this.bullets[i];
             bullet.tick();
-            
-            // check for end of range
-            if (bullet.distanceTravelled >= bullet.distanceToTravel) {
+
+             // check for end of range
+             if (bullet.distanceTravelled >= bullet.distanceToTravel) {
                 this.bullets.splice(i, 1);
             }
+
+            // check for enemy collision
+            for (let j = this.enemies.length; j--; j >= 0) {
+                let enemy = this.enemies[j];
+                if (bullet.x >= enemy.x && bullet.x < enemy.x + enemy.width) {
+                    if (bullet.y >= enemy.y && bullet.y < enemy.y + enemy.height) {
+                        this.enemies.splice(j, 1);
+                        this.bullets.splice(i, 1);
+                        if (this.enemies.length == 0) {
+                            this.level++;
+                            this.generateEnemies();
+                        }
+
+                        break;
+                    }
+                } 
+            }
+
+           
         }
     }
 
     render() {
+        if (this.gameEnded) {
+            return;
+        }
+
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.player.render();
- /*       for (let enemy of this.enemies) {
+
+        // Draw health
+        this.ctx.fillStyle = "white";
+        this.ctx.font = "10px Arial";
+        this.ctx.fillText('Life: ' + this.player.health, 20, 20);
+
+        for (let enemy of this.enemies) {
             enemy.render();
         }
-*/
+
         for(let bullet of this.bullets) {
             bullet.render();
         }
 
+    }
+
+    gameOver() {
+        console.log('Game Over!');
+        this.ctx.clearRect(0, 0, this.width, this.height);
+          // Draw game over screen
+          this.ctx.fillStyle = "red";
+          this.ctx.font = "40px Arial";
+          this.ctx.fillText('Game Over!', this.width / 2 - 150, this.height / 2);
+          this.gameEnded = true;
     }
 
     doFire(destX, destY) {
