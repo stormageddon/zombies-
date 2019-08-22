@@ -9,7 +9,7 @@ class Player {
         this.ctx = ctx;
         this.game = game;
         this.speed = 2;
-        this.health = 5;
+        this.health = 1000000000;
     }
 
     tick() {

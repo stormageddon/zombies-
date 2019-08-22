@@ -116,8 +116,8 @@ class Game {
                 && this.player.x + this.player.width > enemy.x
                 && this.player.y > enemy.y - enemy.height
                 && this.player.y - this.player.height < enemy.y) {
-                    this.player.health--
-                    this.enemies.splice(i, 1);
+                    this.player.health -= 1 
+                    //this.enemies.splice(i, 1);
                     break;
             }
 
