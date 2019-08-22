@@ -10,6 +10,7 @@ const GameObject = require('./gameObject.js').GameObject;
 const Bullet = require('./gameObject.js').Bullet;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 650;
+const GameColor = require('./color.js').GameColor
 
 const FIRE_TIMER_MAX = 1.0;
 const FPS = 30;
@@ -46,18 +47,17 @@ class Game {
         this.player = new Player(32, 32, 0, 0, this.ctx, this);
         this.enemies = []
         this.generateEnemies();
-        
-//        this.enemies.push(new FastEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, this.ctx))
-        
+                
         this.bullets = []
     }   
 
     generateEnemies() {
         console.log(this.level);
         for (let i = 0; i < 5 + (2 * this.level); i++) {
-            console.log('generate');
-            this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, this.ctx));
+            this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, 64, this.ctx));
         }
+
+        
     }
 
     start() {
@@ -107,20 +107,21 @@ class Game {
 
         for(let i = this.enemies.length; i--; i >= 0 ) {
             let enemy = this.enemies[i];
-            enemy.tick(this.player.x, this.player.y);
+            
 
             //f (RectA.X1 < RectB.X2 && RectA.X2 > RectB.X1 &&
             //    RectA.Y1 > RectB.Y2 && RectA.Y2 < RectB.Y1) 
-
-            if (this.player.x < enemy.x + enemy.width
-                && this.player.x + this.player.width > enemy.x
-                && this.player.y > enemy.y - enemy.height
-                && this.player.y - this.player.height < enemy.y) {
-                    this.player.health -= 1 
-                    //this.enemies.splice(i, 1);
-                    break;
+            if (this.inRange(this.player, enemy)) {
+                //this.player.health -= 1 
+                //this.enemies.splice(i, 1);
+                enemy.canAttack = true;
+                enemy.attack(this.player);
+            }
+            else {
+                enemy.canAttack = false;
             }
 
+            enemy.tick(this.player.x, this.player.y);
         }
 
         for(let i = this.bullets.length; i--; i >= 0) {
@@ -186,6 +187,35 @@ class Game {
           this.gameEnded = true;
     }
 
+    inRange(target, attacker) {
+        // debugger;
+        let attackerX = attacker.getBounds().x;
+        let attackerY = attacker.getBounds().y;
+        let attackerR = attacker.getBounds().r;
+
+
+
+        let one =  attackerX - attackerR / 2
+        let three = attackerX  + attackerR / 2 + attacker.width
+        let two = attackerY - attackerR / 2
+        let four = attackerY + attackerR / 2
+
+
+        this.ctx.fillStyle = "rgba(0,0,255,0.2)"
+        this.ctx.fillRect(one, two, three, four)
+        
+
+        if (target.x < three
+            && target.x + target.width > one 
+            && target.y > two - attacker.height
+            && target.y - target.height < four
+        ) {
+            return true;
+        }
+
+        return false;
+    }
+    
     doFire(destX, destY) {
     /*/ console.log('do fire');
         this.ctx.fillStyle = 'rgb(255,0,0)'
@@ -193,7 +223,8 @@ class Game {
         this.ctx.moveTo(this.player.x + (this.player.width / 2), this.player.y + (this.player.height / 2));
         this.ctx.lineTo(destX, destY);
         this.ctx.stroke();*/
-        this.bullets.push(new Bullet(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, destX, destY));
+        let c = new GameColor()
+        this.bullets.push(new Bullet(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, destX, destY, new GameColor(0,0,255)));
         console.log(this.bullets);
     }
 }

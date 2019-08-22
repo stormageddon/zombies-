@@ -14,7 +14,7 @@ class GameObject {
 }
 
 class Bullet extends GameObject {
-    constructor(width, height, x, y, ctx, destX, destY) {
+    constructor(width, height, x, y, ctx, destX, destY, color) {
         super(x,y);
         this.x = x; 
         this.y = y;
@@ -27,6 +27,7 @@ class Bullet extends GameObject {
         this.distanceToTravel = 1200 * 0.4;
         this.distanceTravelled = 0;
         this.radius = 1;
+        this.color = color;
 
         // this.dx = this.destX - this.x;
         // this.dy = this.destY - this.y;
@@ -98,7 +99,7 @@ class Bullet extends GameObject {
     }
 
     render() {
-        this.ctx.fillStyle = 'rgb(0,0,255)';
+        this.ctx.fillStyle = this.color.getRGBString();//'rgb(0,0,255)';
         this.ctx.beginPath();
         this.ctx.arc(this.x, this.y, this.radius, 0 , Math.PI * 2, false);
 
