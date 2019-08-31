@@ -1,0 +1,20 @@
+{
+  "name": "zombies-",
+  "version": "0.0.1",
+  "description": "Zombies! is a zombie survival game. How long can you survive against the horde?",
+  "main": "game.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "bundle": "browserify color.js player.js keyListener.js mouseListener.js enemy.js gameObject.js game.js > dist/bundle.js" 
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stormageddon/zombies-.git"
+  },
+  "author": "Mike Caputo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/stormageddon/zombies-/issues"
+  },
+  "homepage": "https://github.com/stormageddon/zombies-#readme"
+}
