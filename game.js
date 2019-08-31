@@ -11,7 +11,7 @@ const Bullet = require('./gameObject.js').Bullet;
 const Punch = require('./gameObject.js').Punch;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 650;
-const GameColor = require('./color.js').GameColor
+const GameColor = require('./color.js').GameColor;
 
 const FIRE_TIMER_MAX = 1.0;
 const FPS = 30;
@@ -50,6 +50,7 @@ class Game {
        
                 
         this.bullets = []
+        this.gameObjects = []
     }   
 
 
@@ -75,6 +76,24 @@ class Game {
         }
 
         this.player.tick();
+
+        for (let i = this.gameObjects.length; i--; i >= 0) {
+            let go = this.gameObjects[i];
+            console.log('game objects' + this.gameObjects);
+
+
+            // if (bullet.targetsEnemy && (bullet.x >= enemy.x && bullet.x < enemy.x + enemy.width)) {
+            //     if (bullet.y >= enemy.y && bullet.y < enemy.y + enemy.height) {
+            // if (go.x + 5 > this.player.x 
+            //     && go.x + 5 < this.player.x + this.player.width 
+            //     && go.y - 5 >= this.player.y
+            //     && go.y - 5 < this.player.y + this.player.height) {
+
+            if (this.intersectRect(go, this.player)) {
+                go.consume(this.player);
+                this.gameObjects.splice(i, 1);
+            }
+        }
 
         if (this.mouseListener.clicking && this.fireTimer == 0) {
             this.doFire(
@@ -126,6 +145,9 @@ class Game {
                 let enemy = this.enemies[j];
                 if (bullet.targetsEnemy && (bullet.x >= enemy.x && bullet.x < enemy.x + enemy.width)) {
                     if (bullet.y >= enemy.y && bullet.y < enemy.y + enemy.height) {
+                        let loot = enemy.kill();
+                        if (loot) this.gameObjects.push(loot);
+
                         this.enemies.splice(j, 1);
                         this.bullets.splice(i, 1);
                         if (this.enemies.length == 0) {
@@ -168,6 +190,10 @@ class Game {
             bullet.render();
         }
 
+        for(let go of this.gameObjects) {
+            go.render();
+        }
+
         this.renderHealthbar();
 
     }
@@ -181,7 +207,6 @@ class Game {
     }
 
     gameOver() {
-        console.log('Game Over!');
         this.ctx.clearRect(0, 0, this.width, this.height);
           // Draw game over screen
           this.ctx.fillStyle = "red";
@@ -204,8 +229,8 @@ class Game {
         let four = attackerY + attackerR / 2
 
 
-        this.ctx.fillStyle = "rgba(0,0,255,0.2)"
-        this.ctx.fillRect(one, two, three, four)
+        // this.ctx.fillStyle = "rgba(0,0,255,0.2)"
+        // this.ctx.fillRect(one, two, three, four)
         
 
         if (target.x < three
@@ -230,7 +255,7 @@ class Game {
         // setTimeout(x => {
             
         // }, 3000);
-        console.log("START")
+
         // this.generateEnemies();
         this.gameEnded = false;
         setInterval(this.tick.bind(this), 5);
@@ -249,6 +274,13 @@ class Game {
             this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, 32, this.ctx, this.doFire.bind(this)));
         }
     }
+
+    intersectRect(r1, r2) {
+        return !(r2.x > r1.x + r1.width || 
+                 r2.x + r2.width < r1.x || 
+                 r2.y > r1.y + r1.height ||
+                 r2.y + r2.height < r1.y);
+      }
 }
 
 

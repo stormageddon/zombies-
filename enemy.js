@@ -1,5 +1,6 @@
 const Punch = require('./gameObject.js').Punch;
 const GameColor = require('./color.js').GameColor
+const HealthKit = require('./gameObject.js').HealthKit;
 
 
 class Enemy {
@@ -23,9 +24,6 @@ class Enemy {
     render() {
         this.ctx.fillStyle = 'rgb(255,0,0)';
         this.ctx.fillRect(this.x,this.y,this.width,this.height);
-
-        // this.ctx.fillStyle = 'rgba(255,0,0,0.3)';
-        // this.ctx.fillRect(this.x - this.attackRadius / 2, this.y - this.attackRadius / 2, this.attackRadius + this.width, this.attackRadius + this.height);
     }
 
     getBounds() {
@@ -37,12 +35,20 @@ class Enemy {
     }
 
     attack(player) {
-        //player.health -= this.damage;
         this.doFire(player.x,
             player.y, 
             new Punch(1,1,this.x + (this.width / 2), this.y + (this.height/ 2), this.ctx, player.x, player.y, new GameColor(255,0,0), false)
         )
         this.attackTimer = 2.0
+    }
+
+    kill() {
+        // Drop loot
+        let r = Math.random()
+        if (r > 0.6) {
+            console.log("drop health kit");
+            return new HealthKit(this.x, this.y, this.ctx);
+        }
     }
 }
 

@@ -1,8 +1,10 @@
+const GameColor = require('./color.js').GameColor;
+
+
 class GameObject {
-    constructor(x, y, targetsEnemy) {
+    constructor(x, y) {
         this.x = x;
-        this.y = y;
-        this.targetsEnemy = targetsEnemy
+        this.y = y;  
     }
 
     tick() {
@@ -11,6 +13,40 @@ class GameObject {
 
     render() {
         console.log("override in subclass");
+    }
+
+    getBounds() {}
+
+    consume() {}
+}
+
+class HealthKit extends GameObject {
+    constructor(x, y, ctx) {
+        super(x,y);
+        this.x = x;
+        this.y = y;
+        this.width = 16;
+        this.height = 16;
+        this.ctx = ctx;
+        this.color = new GameColor(0,155,0);
+    }
+
+    tick() {}
+    render() {
+        this.ctx.fillStyle = this.color.getRGBString();
+        this.ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+
+    consume(target) {
+        target.health += 5;
+    }
+
+    getBounds() {
+        return {
+            x: this.x,
+            y: this.y,
+            r: 0
+        }
     }
 }
 
@@ -32,7 +68,6 @@ class Bullet extends GameObject {
         this.targetsEnemy = targetsEnemy;
 
         let r = Math.atan2(this.destY-this.y, this.destX-this.x);
-        console.log(r);
 
         this.velY = Math.sin(r) * this.speed; 
         this.velX =  Math.cos(r) * this.speed;
@@ -115,5 +150,6 @@ class Punch extends GameObject {
 module.exports = {
     GameObject: GameObject,
     Bullet: Bullet,
-    Punch: Punch
+    Punch: Punch,
+    HealthKit: HealthKit
 }

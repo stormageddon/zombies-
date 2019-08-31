@@ -1,7 +1,6 @@
 
 function init(movement) {
     document.addEventListener("keyup", (e) => {
-        console.log(e.code);
         switch (e.code) {
             case 'KeyW':
                     window.movement.up = false;
@@ -22,7 +21,6 @@ function init(movement) {
     });
 
     document.addEventListener("keydown", (e) => {
-        console.log('pressed: ' + e.code);
         switch (e.code) {
             case 'KeyW':
                 game.player.yVelocity = -game.player.speed;
@@ -40,10 +38,6 @@ function init(movement) {
                 game.player.xVelocity = game.player.speed;
                 window.movement.right = true;
                 break;
-        }
-    
-        if (window.movement.up) {
-            
         }
     });
 }
