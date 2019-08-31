@@ -168,6 +168,16 @@ class Game {
             bullet.render();
         }
 
+        this.renderHealthbar();
+
+    }
+
+    renderHealthbar() {
+        this.ctx.fillStyle = "rgb(155,0,0)";
+        this.ctx.fillRect(10,10,100,20);
+
+        this.ctx.fillStyle = "green";
+        this.ctx.fillRect(10,10,this.player.health, 20);
     }
 
     gameOver() {
