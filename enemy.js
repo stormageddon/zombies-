@@ -1,5 +1,9 @@
+const Punch = require('./gameObject.js').Punch;
+const GameColor = require('./color.js').GameColor
+
+
 class Enemy {
-    constructor(width, height, x, y, attackRadius, ctx) {
+    constructor(width, height, x, y, attackRadius, ctx, doFire) {
         this.width = width;
         this.height = height;
         this.x = x;
@@ -8,6 +12,8 @@ class Enemy {
         this.speed = 0.5;
         this.attackRadius = attackRadius;
         this.damage = 1;
+        this.doFire = doFire;
+        this.attackTimer = 2.0;
     }
 
     tick(destX, destY) {
@@ -18,8 +24,8 @@ class Enemy {
         this.ctx.fillStyle = 'rgb(255,0,0)';
         this.ctx.fillRect(this.x,this.y,this.width,this.height);
 
-        this.ctx.fillStyle = 'rgba(255,0,0,0.3)';
-        this.ctx.fillRect(this.x - this.attackRadius / 2, this.y - this.attackRadius / 2, this.attackRadius + this.width, this.attackRadius + this.height);
+        // this.ctx.fillStyle = 'rgba(255,0,0,0.3)';
+        // this.ctx.fillRect(this.x - this.attackRadius / 2, this.y - this.attackRadius / 2, this.attackRadius + this.width, this.attackRadius + this.height);
     }
 
     getBounds() {
@@ -31,13 +37,18 @@ class Enemy {
     }
 
     attack(player) {
-        player.health -= this.damage;
+        //player.health -= this.damage;
+        this.doFire(player.x,
+            player.y, 
+            new Punch(1,1,this.x + (this.width / 2), this.y + (this.height/ 2), this.ctx, player.x, player.y, new GameColor(255,0,0), false)
+        )
+        this.attackTimer = 2.0
     }
 }
 
 class SimpleEnemy extends Enemy {
-    constructor(width, height, x, y, attackRadius, ctx) {
-        super(width, height, x, y, attackRadius, ctx);
+    constructor(width, height, x, y, attackRadius, ctx, doFire) {
+        super(width, height, x, y, attackRadius, ctx, doFire);
     }
 
     tick(destX, destY) {
@@ -56,7 +67,7 @@ class SimpleEnemy extends Enemy {
             else if (this.y > destY) {
                 this.y -= this.speed;
             }
-        }
+        } 
     }
 }
 

@@ -8,6 +8,7 @@ const SimpleEnemy = require('./enemy.js').SimpleEnemy;
 const FastEnemy = require('./enemy.js').FastEnemy;
 const GameObject = require('./gameObject.js').GameObject;
 const Bullet = require('./gameObject.js').Bullet;
+const Punch = require('./gameObject.js').Punch;
 const GAME_WIDTH = 1200;
 const GAME_HEIGHT = 650;
 const GameColor = require('./color.js').GameColor
@@ -46,33 +47,11 @@ class Game {
         
         this.player = new Player(32, 32, 0, 0, this.ctx, this);
         this.enemies = []
-        this.generateEnemies();
+       
                 
         this.bullets = []
     }   
 
-    generateEnemies() {
-        console.log(this.level);
-        for (let i = 0; i < 5 + (2 * this.level); i++) {
-            this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, 64, this.ctx));
-        }
-
-        
-    }
-
-    start() {
-        // this.ctx.fillStyle = "rgb(255,255,255)";
-        // this.ctx.font = "100px Arial";
-        // const title = 'Zombies!'
-        // this.ctx.fillText(title, this.width / 2 - 200, this.height / 2);
-
-        // setTimeout(x => {
-            
-        // }, 3000);
-        this.gameEnded = false;
-        setInterval(this.tick.bind(this), 5);
-        requestAnimationFrame(this.gameLoop.bind(this));
-    }
 
     gameLoop() {
         this.render();    
@@ -82,7 +61,7 @@ class Game {
     }
 
     tick() {
-
+        
         if (this.player.health <= 0) {
             this.gameOver()
         }
@@ -91,10 +70,18 @@ class Game {
             return;
         }
 
+        if (this.enemies.length == 0) {
+            this.generateEnemies();
+        }
+
         this.player.tick();
 
         if (this.mouseListener.clicking && this.fireTimer == 0) {
-            this.doFire(this.mouseListener.x, this.mouseListener.y);
+            this.doFire(
+                this.mouseListener.x, 
+                this.mouseListener.y,
+                new Bullet(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, this.mouseListener.x, this.mouseListener.y, new GameColor(255,0,0), true)
+            );
 
             this.fireTimer = FIRE_TIMER_MAX;
         }
@@ -111,7 +98,7 @@ class Game {
 
             //f (RectA.X1 < RectB.X2 && RectA.X2 > RectB.X1 &&
             //    RectA.Y1 > RectB.Y2 && RectA.Y2 < RectB.Y1) 
-            if (this.inRange(this.player, enemy)) {
+            if (this.inRange(this.player, enemy) && enemy.attackTimer <= 0) {
                 //this.player.health -= 1 
                 //this.enemies.splice(i, 1);
                 enemy.canAttack = true;
@@ -119,6 +106,7 @@ class Game {
             }
             else {
                 enemy.canAttack = false;
+                enemy.attackTimer -= 0.1;
             }
 
             enemy.tick(this.player.x, this.player.y);
@@ -129,14 +117,14 @@ class Game {
             bullet.tick();
 
              // check for end of range
-             if (bullet.distanceTravelled >= bullet.distanceToTravel) {
+             if (Math.abs(bullet.distanceTravelled) >= bullet.distanceToTravel) {
                 this.bullets.splice(i, 1);
             }
 
             // check for enemy collision
             for (let j = this.enemies.length; j--; j >= 0) {
                 let enemy = this.enemies[j];
-                if (bullet.x >= enemy.x && bullet.x < enemy.x + enemy.width) {
+                if (bullet.targetsEnemy && (bullet.x >= enemy.x && bullet.x < enemy.x + enemy.width)) {
                     if (bullet.y >= enemy.y && bullet.y < enemy.y + enemy.height) {
                         this.enemies.splice(j, 1);
                         this.bullets.splice(i, 1);
@@ -147,7 +135,12 @@ class Game {
 
                         break;
                     }
-                } 
+                } else if (!bullet.targetsEnemy && (bullet.x >= this.player.x && bullet.x < this.player.x + enemy.width)) {
+                    if (bullet.y >= this.player.y && bullet.y < this.player.y + this.player.height) {
+                        this.player.health -= 1;
+                        this.bullets.splice(i, 1);
+                    }
+                }
             }
 
            
@@ -216,18 +209,39 @@ class Game {
         return false;
     }
     
-    doFire(destX, destY) {
-    /*/ console.log('do fire');
-        this.ctx.fillStyle = 'rgb(255,0,0)'
-        this.ctx.beginPath();
-        this.ctx.moveTo(this.player.x + (this.player.width / 2), this.player.y + (this.player.height / 2));
-        this.ctx.lineTo(destX, destY);
-        this.ctx.stroke();*/
+
+
+    start() {
+        // this.ctx.fillStyle = "rgb(255,255,255)";
+        // this.ctx.font = "100px Arial";
+        // const title = 'Zombies!'
+        // this.ctx.fillText(title, this.width / 2 - 200, this.height / 2);
+
+        // setTimeout(x => {
+            
+        // }, 3000);
+        console.log("START")
+        // this.generateEnemies();
+        this.gameEnded = false;
+        setInterval(this.tick.bind(this), 5);
+        requestAnimationFrame(this.gameLoop.bind(this));
+    }
+
+    doFire(destX, destY, attackObject) {
         let c = new GameColor()
-        this.bullets.push(new Bullet(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, destX, destY, new GameColor(0,0,255)));
-        console.log(this.bullets);
+        //this.bullets.push(new Punch(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, destX, destY, new GameColor(0,0,255)));
+        this.bullets.push(attackObject)
+    }
+
+    generateEnemies() {
+        let self = this;
+        for (let i = 0; i < 5 + (2 * this.level); i++) {
+            this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, 32, this.ctx, this.doFire.bind(this)));
+        }
     }
 }
+
+
 
 let count = 10;
 window.game = new Game(GAME_WIDTH, GAME_HEIGHT);
