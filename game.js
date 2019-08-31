@@ -35,8 +35,9 @@ class Game {
         this.tickSpeed = 1;  
         this.mouseListener = new MouseListener();   
         this.fireTimer = 0;  
-        this.level = 0; 
+        this.level = 1; 
         this.gameEnded = false;
+        this.score = 0;
 
         const canvas = document.getElementById('canvas');
         canvas.setAttribute('width', this.width);
@@ -147,7 +148,7 @@ class Game {
                     if (bullet.y >= enemy.y && bullet.y < enemy.y + enemy.height) {
                         let loot = enemy.kill();
                         if (loot) this.gameObjects.push(loot);
-
+                        this.score += enemy.value;
                         this.enemies.splice(j, 1);
                         this.bullets.splice(i, 1);
                         if (this.enemies.length == 0) {
@@ -195,6 +196,7 @@ class Game {
         }
 
         this.renderHealthbar();
+        this.renderScore();
 
     }
 
@@ -204,6 +206,16 @@ class Game {
 
         this.ctx.fillStyle = "green";
         this.ctx.fillRect(10,10,this.player.health, 20);
+    }
+
+    renderScore() {
+        this.ctx.fillStyle = "white"
+        this.ctx.font = "14px Arial";
+        let text = 'Level: ' + this.level;
+        this.ctx.fillText(text, this.width - 100, 20);
+        
+        text = 'Score: ' + this.score;
+        this.ctx.fillText(text, this.width - 100, 40);
     }
 
     gameOver() {
@@ -264,7 +276,6 @@ class Game {
 
     doFire(destX, destY, attackObject) {
         let c = new GameColor()
-        //this.bullets.push(new Punch(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, destX, destY, new GameColor(0,0,255)));
         this.bullets.push(attackObject)
     }
 
@@ -272,6 +283,12 @@ class Game {
         let self = this;
         for (let i = 0; i < 5 + (2 * this.level); i++) {
             this.enemies.push(new SimpleEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, 32, this.ctx, this.doFire.bind(this)));
+        }
+
+        if (this.level % 3 == 0) {
+            for (let i = 0; i < this.level / 3; i++) {
+                this.enemies.push(new FastEnemy(32, 32, Math.random() * this.width, Math.random() * this.height, 32, this.ctx, this.doFire.bind(this)))
+            }
         }
     }
 

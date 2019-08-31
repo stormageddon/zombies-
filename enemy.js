@@ -15,6 +15,7 @@ class Enemy {
         this.damage = 1;
         this.doFire = doFire;
         this.attackTimer = 2.0;
+        this.value = 1;
     }
 
     tick(destX, destY) {
@@ -78,13 +79,32 @@ class SimpleEnemy extends Enemy {
 }
 
 class FastEnemy extends SimpleEnemy {
-    constructor(width, height, x, y, ctx) {
-        super(width, height, x, y, ctx);
-        this.speed = 1.0
+    constructor(width, height, x, y, attackRadius, ctx, doFire) {
+        super(width, height, x, y, attackRadius, ctx, doFire);
+        this.speed = 1.0;
+        this.value = 2;
+    }
+
+    tick(destX, destY) {
+        if (!this.canAttack) {
+            // move towards player in stupid fashion
+            if (this.x < destX) {
+                this.x += this.speed;
+            }
+            else if (this.x > destX) {
+                this.x -= this.speed;
+            }
+
+            if (this.y < destY) {
+                this.y += this.speed;
+            }
+            else if (this.y > destY) {
+                this.y -= this.speed;
+            }
+        } 
     }
 
     render() {
-
         this.ctx.fillStyle = 'rgb(0,255,0)';
         this.ctx.fillRect(this.x,this.y,this.width,this.height);
 
