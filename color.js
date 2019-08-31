@@ -1,3 +1,5 @@
+'use strict'
+
 class GameColor {
     constructor(redVal, greenVal, blueVal) {
         this.redVal = redVal;

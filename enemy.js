@@ -1,3 +1,5 @@
+'use strict'
+
 const Punch = require('./gameObject.js').Punch;
 const GameColor = require('./color.js').GameColor
 const HealthKit = require('./gameObject.js').HealthKit;
@@ -110,7 +112,6 @@ class FastEnemy extends SimpleEnemy {
 
     }
 }
-
 
 module.exports = {
     Enemy: Enemy, 

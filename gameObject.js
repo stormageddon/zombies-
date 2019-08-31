@@ -1,5 +1,5 @@
+'use strict'
 const GameColor = require('./color.js').GameColor;
-
 
 class GameObject {
     constructor(x, y) {
@@ -7,16 +7,9 @@ class GameObject {
         this.y = y;  
     }
 
-    tick() {
-        console.log("override in subclass");
-    }
-
-    render() {
-        console.log("override in subclass");
-    }
-
+    tick() {}
+    render() {}
     getBounds() {}
-
     consume() {}
 }
 

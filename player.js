@@ -1,3 +1,5 @@
+'use strict'
+
 class Player {
     constructor(width, height, x, y, ctx, game) {
         this.width = width;

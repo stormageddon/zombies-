@@ -1,12 +1,8 @@
-// to bundle:
-// browserify player.js keyListener.js enemy.js game.js > dist/bundle.js
-
 'use strict'
+
 const Player = require('./player.js');
-const Enemy = require('./enemy.js').Enemy;
 const SimpleEnemy = require('./enemy.js').SimpleEnemy;
 const FastEnemy = require('./enemy.js').FastEnemy;
-const GameObject = require('./gameObject.js').GameObject;
 const Bullet = require('./gameObject.js').Bullet;
 const Punch = require('./gameObject.js').Punch;
 const GAME_WIDTH = 1200;
@@ -54,7 +50,6 @@ class Game {
         this.gameObjects = []
     }   
 
-
     gameLoop() {
         this.render();    
         if (this.isRunning) {
@@ -63,7 +58,6 @@ class Game {
     }
 
     tick() {
-        
         if (this.player.health <= 0) {
             this.gameOver()
         }
@@ -80,15 +74,6 @@ class Game {
 
         for (let i = this.gameObjects.length; i--; i >= 0) {
             let go = this.gameObjects[i];
-            console.log('game objects' + this.gameObjects);
-
-
-            // if (bullet.targetsEnemy && (bullet.x >= enemy.x && bullet.x < enemy.x + enemy.width)) {
-            //     if (bullet.y >= enemy.y && bullet.y < enemy.y + enemy.height) {
-            // if (go.x + 5 > this.player.x 
-            //     && go.x + 5 < this.player.x + this.player.width 
-            //     && go.y - 5 >= this.player.y
-            //     && go.y - 5 < this.player.y + this.player.height) {
 
             if (this.intersectRect(go, this.player)) {
                 go.consume(this.player);
@@ -100,7 +85,7 @@ class Game {
             this.doFire(
                 this.mouseListener.x, 
                 this.mouseListener.y,
-                new Bullet(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, this.mouseListener.x, this.mouseListener.y, new GameColor(255,0,0), true)
+                new Punch(1,1,this.player.x + (this.player.width / 2), this.player.y + (this.player.height/ 2), this.ctx, this.mouseListener.x, this.mouseListener.y, new GameColor(255,0,0), true)
             );
 
             this.fireTimer = FIRE_TIMER_MAX;
@@ -114,13 +99,8 @@ class Game {
 
         for(let i = this.enemies.length; i--; i >= 0 ) {
             let enemy = this.enemies[i];
-            
 
-            //f (RectA.X1 < RectB.X2 && RectA.X2 > RectB.X1 &&
-            //    RectA.Y1 > RectB.Y2 && RectA.Y2 < RectB.Y1) 
             if (this.inRange(this.player, enemy) && enemy.attackTimer <= 0) {
-                //this.player.health -= 1 
-                //this.enemies.splice(i, 1);
                 enemy.canAttack = true;
                 enemy.attack(this.player);
             }
@@ -165,8 +145,6 @@ class Game {
                     }
                 }
             }
-
-           
         }
     }
 
@@ -177,11 +155,6 @@ class Game {
 
         this.ctx.clearRect(0, 0, this.width, this.height);
         this.player.render();
-
-        // Draw health
-        this.ctx.fillStyle = "white";
-        this.ctx.font = "10px Arial";
-        this.ctx.fillText('Life: ' + this.player.health, 20, 20);
 
         for (let enemy of this.enemies) {
             enemy.render();
@@ -225,26 +198,19 @@ class Game {
           this.ctx.font = "40px Arial";
           this.ctx.fillText('Game Over!', this.width / 2 - 150, this.height / 2);
           this.gameEnded = true;
+          this.isRunning = false;
     }
 
     inRange(target, attacker) {
-        // debugger;
         let attackerX = attacker.getBounds().x;
         let attackerY = attacker.getBounds().y;
         let attackerR = attacker.getBounds().r;
-
-
 
         let one =  attackerX - attackerR / 2
         let three = attackerX  + attackerR / 2 + attacker.width
         let two = attackerY - attackerR / 2
         let four = attackerY + attackerR / 2
-
-
-        // this.ctx.fillStyle = "rgba(0,0,255,0.2)"
-        // this.ctx.fillRect(one, two, three, four)
         
-
         if (target.x < three
             && target.x + target.width > one 
             && target.y > two - attacker.height
@@ -300,9 +266,6 @@ class Game {
       }
 }
 
-
-
-let count = 10;
 window.game = new Game(GAME_WIDTH, GAME_HEIGHT);
 
 game.start();

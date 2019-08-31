@@ -1,3 +1,4 @@
+'use strict'
 function initMouseListener() {
     this.clicking = false;
     this.x = null;

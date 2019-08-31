@@ -1,3 +1,4 @@
+'use strict'
 
 function init(movement) {
     document.addEventListener("keyup", (e) => {
